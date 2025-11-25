@@ -52,6 +52,7 @@ jobs:
       - name: Deploy to Hetzner
         uses: appleboy/ssh-action@v1.0.0
         env:
+          GHCR_PAT: ${{ secrets.GHCR_PAT }}
           FORM_ENDPOINT: ${{ secrets.FORM_ENDPOINT }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
@@ -59,11 +60,14 @@ jobs:
           host: ${{ secrets.HETZNER_HOST }}
           username: ${{ secrets.HETZNER_USER }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
-          envs: FORM_ENDPOINT,DATABASE_URL,OPENWEATHER_API_KEY
+          envs: GHCR_PAT,FORM_ENDPOINT,DATABASE_URL,OPENWEATHER_API_KEY
           script: |
             set -euo pipefail
             mkdir -p /build-labs/apps/eco-ops-manager/
             cd /build-labs/apps/eco-ops-manager/
+
+            # Login to GHCR to pull private images
+            echo "${GHCR_PAT}" | docker login ghcr.io -u andrew-phillips-alpine --password-stdin
 
             cat > docker-compose.yml <<EOF
             version: '3.8'
