@@ -87,12 +87,12 @@ jobs:
                   - buildlabs-net
                 labels:
                   - "traefik.enable=true"
-                  - "traefik.http.routers.eco-ops-manager.rule=Host(\`eco-ops-manager.thealpinesystem.com\`)"
+                  - "traefik.http.routers.eco-ops-manager.rule=Host(\`eco-ops-manager.alpineappfactory.com\`)"
                   - "traefik.http.routers.eco-ops-manager.entrypoints=websecure"
                   - "traefik.http.routers.eco-ops-manager.tls=true"
                   - "traefik.http.routers.eco-ops-manager.tls.certresolver=cloudflare"
-                  - "traefik.http.routers.eco-ops-manager.tls.domains[0].main=thealpinesystem.com"
-                  - "traefik.http.routers.eco-ops-manager.tls.domains[0].sans=*.thealpinesystem.com"
+                  - "traefik.http.routers.eco-ops-manager.tls.domains[0].main=alpineappfactory.com"
+                  - "traefik.http.routers.eco-ops-manager.tls.domains[0].sans=*.alpineappfactory.com"
                   - "traefik.http.services.eco-ops-manager.loadbalancer.server.port=3000"
 
             networks:

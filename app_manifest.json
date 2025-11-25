@@ -12,7 +12,7 @@
   },
   "deployment": {
     "ghcr_owner": "andrew-phillips-alpine",
-    "domain": "eco-ops-manager.thealpinesystem.com",
+    "domain": "eco-ops-manager.alpineappfactory.com",
     "region": "hetzner-fsn1"
   },
   "blocks": {
