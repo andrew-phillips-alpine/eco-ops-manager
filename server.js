@@ -190,12 +190,6 @@ app.get('/api/health', (req, res) => {
 // STATIC FILE SERVING
 // =============================================================================
 
-// In dev, Next.js serves its own assets; avoid noisy errors when the custom
-// server receives these requests.
-app.get('/_next/*', (req, res) => {
-  res.status(404).send('Next.js dev server serves assets on its own port');
-});
-
 // Serve static files from Next.js build output
 const staticPath = path.join(__dirname, 'out');
 app.use(express.static(staticPath));
