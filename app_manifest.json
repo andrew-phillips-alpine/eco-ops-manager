@@ -78,7 +78,6 @@
     ],
     "secrets_required": [
       "OPENWEATHER_API_KEY",
-      "DATABASE_URL",
       "FORM_ENDPOINT"
     ]
   }

@@ -10,9 +10,8 @@ services:
       - PORT=3000
       - APP_NAME=eco-ops-manager
       - FORM_ENDPOINT=${FORM_ENDPOINT}
-      - DATABASE_URL=${DATABASE_URL}
       - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
-      - USE_MOCK_DATA=false
+      - USE_MOCK_DATA=true
     networks:
       - buildlabs-net
     labels:

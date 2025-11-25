@@ -54,13 +54,12 @@ jobs:
         env:
           GHCR_PAT: ${{ secrets.GHCR_PAT }}
           FORM_ENDPOINT: ${{ secrets.FORM_ENDPOINT }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
         with:
           host: ${{ secrets.HETZNER_HOST }}
           username: ${{ secrets.HETZNER_USER }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
-          envs: GHCR_PAT,FORM_ENDPOINT,DATABASE_URL,OPENWEATHER_API_KEY
+          envs: GHCR_PAT,FORM_ENDPOINT,OPENWEATHER_API_KEY
           script: |
             set -euo pipefail
             mkdir -p /build-labs/apps/eco-ops-manager/
@@ -82,9 +81,8 @@ jobs:
                   - PORT=3000
                   - APP_NAME=eco-ops-manager
                   - FORM_ENDPOINT=${FORM_ENDPOINT}
-                  - DATABASE_URL=${DATABASE_URL}
                   - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
-                  - USE_MOCK_DATA=false
+                  - USE_MOCK_DATA=true
                 networks:
                   - buildlabs-net
                 labels:
