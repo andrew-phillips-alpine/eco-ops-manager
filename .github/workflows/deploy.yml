@@ -1,0 +1,104 @@
+name: Deploy to Hetzner
+
+on:
+  push:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/eco-ops-manager
+          tags: |
+            type=raw,value=latest
+
+      - name: Lowercase owner
+        id: owner_lc
+        run: echo "owner_lc=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ steps.owner_lc.outputs.owner_lc }}/eco-ops-manager:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Deploy to Hetzner
+        uses: appleboy/ssh-action@v1.0.0
+        env:
+          FORM_ENDPOINT: ${{ secrets.FORM_ENDPOINT }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+        with:
+          host: ${{ secrets.HETZNER_HOST }}
+          username: ${{ secrets.HETZNER_USER }}
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          envs: FORM_ENDPOINT,DATABASE_URL,OPENWEATHER_API_KEY
+          script: |
+            set -euo pipefail
+            mkdir -p /build-labs/apps/eco-ops-manager/
+            cd /build-labs/apps/eco-ops-manager/
+
+            cat > docker-compose.yml <<EOF
+            version: '3.8'
+
+            services:
+              eco-ops-manager:
+                image: ghcr.io/${{ steps.owner_lc.outputs.owner_lc }}/eco-ops-manager:latest
+                container_name: eco-ops-manager
+                restart: unless-stopped
+                environment:
+                  - NODE_ENV=production
+                  - PORT=3000
+                  - APP_NAME=eco-ops-manager
+                  - FORM_ENDPOINT=${FORM_ENDPOINT}
+                  - DATABASE_URL=${DATABASE_URL}
+                  - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
+                  - USE_MOCK_DATA=false
+                networks:
+                  - buildlabs-net
+                labels:
+                  - "traefik.enable=true"
+                  - "traefik.http.routers.eco-ops-manager.rule=Host(\`eco-ops-manager.thealpinesystem.com\`)"
+                  - "traefik.http.routers.eco-ops-manager.entrypoints=websecure"
+                  - "traefik.http.routers.eco-ops-manager.tls=true"
+                  - "traefik.http.routers.eco-ops-manager.tls.certresolver=cloudflare"
+                  - "traefik.http.routers.eco-ops-manager.tls.domains[0].main=thealpinesystem.com"
+                  - "traefik.http.routers.eco-ops-manager.tls.domains[0].sans=*.thealpinesystem.com"
+                  - "traefik.http.services.eco-ops-manager.loadbalancer.server.port=3000"
+
+            networks:
+              buildlabs-net:
+                external: true
+            EOF
+
+            docker compose down || true
+            docker compose pull
+            docker compose up -d --force-recreate
+            docker system prune -f

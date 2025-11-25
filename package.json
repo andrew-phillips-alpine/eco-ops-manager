@@ -1,0 +1,40 @@
+{
+  "name": "eco-ops-manager",
+  "version": "1.0.0",
+  "description": "Operations dashboard cross-referencing staff hours, outdoor temp, and electricity costs.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "bash start.sh",
+    "server": "node server.js",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "mongodb": "^6.3.0",
+    "zod": "^3.22.4",
+    "recharts": "^2.10.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/express": "^4.17.21",
+    "@types/cors": "^2.8.17",
+    "typescript": "^5.3.0",
+    "eslint": "^8.54.0",
+    "eslint-config-next": "^14.0.0",
+    "prettier": "^3.1.0",
+    "tailwindcss": "^3.3.0",
+    "postcss": "^8.4.31",
+    "autoprefixer": "^10.4.16",
+    "concurrently": "^8.2.2"
+  }
+}

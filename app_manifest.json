@@ -1,0 +1,85 @@
+{
+  "meta": {
+    "app_name": "eco-ops-manager",
+    "description": "Operations dashboard cross-referencing staff hours, outdoor temp, and electricity costs.",
+    "version": "1.0.0",
+    "build_id": "2025-11-23-001"
+  },
+  "architecture": {
+    "framework": "nextjs-static-export",
+    "server": "node-custom-server",
+    "node_port": 3000
+  },
+  "deployment": {
+    "ghcr_owner": "andrew-phillips-alpine",
+    "domain": "eco-ops-manager.thealpinesystem.com",
+    "region": "hetzner-fsn1"
+  },
+  "blocks": {
+    "active_modules": [
+      {
+        "id": "ui-dashboard-admin",
+        "type": "ui",
+        "route": null,
+        "config": { "charts": ["efficiency_vs_temp", "cost_per_hour"], "inputs": ["log_hours"] }
+      },
+      {
+        "id": "api-multi-fetch",
+        "type": "api",
+        "route": "/api/data/sync",
+        "config": { "endpoints": ["openweather", "utility_api"] }
+      },
+      {
+        "id": "logic-data-aggregator",
+        "type": "logic",
+        "route": "/api/dashboard/stats",
+        "config": { "formula": "efficiency_calc" }
+      },
+      {
+        "id": "storage-mongodb",
+        "type": "storage",
+        "route": null,
+        "config": { "collection_prefix": "eco_ops_" }
+      },
+      {
+        "id": "communication-error-alert",
+        "type": "communication",
+        "route": null,
+        "config": {}
+      }
+    ]
+  },
+  "wiring": {
+    "routes": [
+      {
+        "method": "GET",
+        "path": "/api/dashboard/stats",
+        "handler_block": "logic-data-aggregator",
+        "middleware": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/data/sync",
+        "handler_block": "api-multi-fetch",
+        "middleware": []
+      },
+      {
+        "method": "POST",
+        "path": "/api/hours/log",
+        "handler_block": "storage-mongodb",
+        "middleware": []
+      },
+      {
+        "method": "GET",
+        "path": "/api/hours",
+        "handler_block": "storage-mongodb",
+        "middleware": []
+      }
+    ],
+    "secrets_required": [
+      "OPENWEATHER_API_KEY",
+      "DATABASE_URL",
+      "FORM_ENDPOINT"
+    ]
+  }
+}
