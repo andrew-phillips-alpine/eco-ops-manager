@@ -21,7 +21,6 @@ const DashboardAdmin = dynamic(() => import('./blocks/ui/dashboard-admin'), {
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || '';
 
 export default function Home() {
-  const isMockEnv = process.env.NEXT_PUBLIC_USE_MOCK_DATA !== 'false';
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -79,9 +78,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen p-4 md:p-8">
-      {(isMockEnv || stats?.mock) && (
-        <div className="mock-indicator">Mock mode enabled</div>
-      )}
       <DashboardAdmin
         stats={stats}
         loading={loading}
